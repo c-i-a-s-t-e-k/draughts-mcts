@@ -12,10 +12,10 @@ class Draughts:
         self.player2 = player2  # White pieces (moves from bottom to top)
         self.chars = {
             EMPTY: " ", 
-            PLAYER_1: "b", 
-            PLAYER_2: "w",
-            KING_1: "B",
-            KING_2: "W"
+            PLAYER_1: "●", 
+            PLAYER_2: "○",
+            KING_1: "⚪",
+            KING_2: "⚫"
         }
         self.current_player = PLAYER_1  # Black starts
     
@@ -39,14 +39,34 @@ class Draughts:
         if not verbose:
             return
         
-        print("  " + " ".join([str(i) for i in range(self.board_size)]))
+        # Print column headers
+        print("  ", end="")
+        for i in range(self.board_size):
+            print(f"  {i} ", end="")
+        print()
+        
+        # Print top border
+        print("  ┼" + "───┼" * self.board_size)
+        
+        # Print rows
         for i, row in enumerate(self.board):
-            print(f"{i} ", end="")
+            print(f"{i} │", end="")
             for cell in row:
-                print(f"{self.chars[cell]} ", end="")
+                if abs(cell) == 2:
+                    print(f" {self.chars[cell]}│", end="")
+                else:
+                    print(f" {self.chars[cell]} │", end="")
             print()
+            
+            # Print row separator
+            if i < self.board_size - 1:
+                print("  ┼" + "───┼" * self.board_size)
+                
+        print()
+        print()
     
     def get_valid_moves(self, player):
+        # print(f"get valid moves for player:{player}")
         # Returns a list of valid moves for the player
         # Each move is a dict with start_pos, end_pos, and captures
         all_valid_moves = []
@@ -58,6 +78,7 @@ class Draughts:
                 
                 # Check if the piece belongs to the player
                 if (piece == player) or (piece == player * 2):  # Regular piece or king
+                    # print(f"piece: {piece} at {row}, {col}")
                     # Get possible moves for this piece
                     piece_moves = self.get_piece_moves((row, col))
                     
@@ -87,9 +108,9 @@ class Draughts:
         # Direction of movement (kings can move in both directions)
         directions = []
         if is_king or player == PLAYER_1:  # Black pieces move down
-            directions.extend([(1, -1), (1, 1)])
-        if is_king or player == PLAYER_2:  # White pieces move up
             directions.extend([(-1, -1), (-1, 1)])
+        if is_king or player == PLAYER_2:  # White pieces move up
+            directions.extend([(1, -1), (1, 1)])
         
         # Check regular moves first
         for dr, dc in directions:
@@ -131,9 +152,9 @@ class Draughts:
         # Direction of movement (kings can move in all directions)
         directions = []
         if is_king or player == PLAYER_1:  # Black moves down
-            directions.extend([(1, -1), (1, 1)])
-        if is_king or player == PLAYER_2:  # White moves up
             directions.extend([(-1, -1), (-1, 1)])
+        if is_king or player == PLAYER_2:  # White moves up
+            directions.extend([(1, -1), (1, 1)])
         
         # Check for capture moves
         for dr, dc in directions:
@@ -233,13 +254,13 @@ class Draughts:
             if not valid_moves:
                 # Current player cannot move, so the other player wins
                 if self.current_player == PLAYER_1:
-                    result = "loss"  # Player 2 wins
+                    result = PLAYER_2  # Player 2 wins
                     if verbose:
-                        print("Player 2 wins! Player 1 has no valid moves.")
+                        print(f"Player 2 {self.player2.name} wins! Player 1 {self.player1.name} has no valid moves.")
                 else:
-                    result = "win"  # Player 1 wins
+                    result = PLAYER_1  # Player 1 wins
                     if verbose:
-                        print("Player 1 wins! Player 2 has no valid moves.")
+                        print(f"Player 1 {self.player1.name} wins! Player 2 {self.player2.name} has no valid moves.")
                 game_over = True
                 break
             
@@ -254,13 +275,13 @@ class Draughts:
             if self.check_for_end():
                 game_over = True
                 if self.current_player == PLAYER_1:  # Current player is the one who just played
-                    result = "win"  # Player 1 wins
+                    result = PLAYER_1  # Player 1 wins
                     if verbose:
-                        print("Player 1 wins! Player 2 has no pieces left.")
+                        print(f"Player 1 {self.player1.name} wins! Player 2 {self.player2.name} has no pieces left.")
                 else:
-                    result = "loss"  # Player 2 wins
+                    result = PLAYER_2  # Player 2 wins
                     if verbose:
-                        print("Player 2 wins! Player 1 has no pieces left.")
+                        print(f"Player 2 {self.player2.name} wins! Player 1 {self.player1.name}  has no pieces left.")
         
         return result
     
@@ -273,6 +294,26 @@ class Draughts:
         # Return a deep copy of the board
         return [row[:] for row in self.board]
     
+    def set_board(self, board, current_player):
+        # Check if the board has the same shape
+        if len(board) != self.board_size or any(len(row) != self.board_size for row in board):
+            raise ValueError("The provided board does not have the correct dimensions")
+        
+        # Check if the board contains only expected values
+        valid_values = [EMPTY, PLAYER_1, PLAYER_2, KING_1, KING_2]
+        for row in board:
+            for cell in row:
+                if cell not in valid_values:
+                    raise ValueError(f"The board contains invalid value: {cell}")
+        
+        # If all checks pass, overwrite the current board
+        self.board = [row[:] for row in board]  # Deep copy to avoid reference issues
+        if current_player in {PLAYER_1, PLAYER_2}:
+            self.current_player = current_player
+        else:
+            raise ValueError(f"Invalid current player: {current_player}")
+
+
     def count_pieces(self):
         # Count the number of pieces for each player
         player1_pieces = 0

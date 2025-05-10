@@ -236,7 +236,7 @@ class Draughts:
         # Switch the current player
         self.current_player *= -1
     
-    def play(self, verbose=True):
+    def play(self, verbose=False):
         # Game loop
         game_over = False
         result = None

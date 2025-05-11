@@ -11,6 +11,7 @@ This project implements a draughts (checkers) game with a Monte Carlo Tree Searc
 *   NumPy
 *   Matplotlib
 *   SciPy
+*   ray
 
 ## Installation
 
@@ -35,22 +36,10 @@ It is recommended to use a virtual environment to manage project dependencies.
 
 3.  **Install the required packages:**
 
-    You can create a `requirements.txt` file with the following content:
-
-    ```
-    numpy
-    matplotlib
-    scipy
-    jupyter
-    ```
-
-    Then install the packages using pip:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    Alternatively, you can install the packages individually:
+    You can install the packages individually:
     ```bash
     pip install numpy matplotlib scipy jupyter
+    pip install -U "ray[default]"
     ```
 
 ## Running
